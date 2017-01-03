@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "578009812123",
+    "firebase_url": "https://unico-ae3c1.firebaseio.com",
+    "project_id": "unico-ae3c1",
+    "storage_bucket": "unico-ae3c1.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:578009812123:android:82ef45533ea077c9",
+        "android_client_info": {
+          "package_name": "com.hsv.varun.unico"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "578009812123-1uh2t7oe9jqk8s33174htqlf3lnfuel5.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.hsv.varun.unico",
+            "certificate_hash": "8980D1E90ACEC11ECCD7051A80B8BBD5DF96A8BF"
+          }
+        },
+        {
+          "client_id": "578009812123-ni9fh1t3aiv2mttt95n6f30uamcpeb0m.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC_qe2LJXB3MSGHX2Sod6W55l2BFAoBhWE"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "578009812123-ni9fh1t3aiv2mttt95n6f30uamcpeb0m.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
