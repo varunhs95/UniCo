@@ -51,31 +51,19 @@
                 android:textAlignment="center"
                 android:textSize="16sp"/>
 
-            <android.support.design.widget.TextInputLayout
-                android:id="@+id/input_layout_gencode"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal">
-
-                <EditText
-                    android:id="@+id/gencde"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_horizontal"
-                    android:inputType="number"
-                    android:maxLines="1"
-                    android:hint="Unique Code:" />
-
-            </android.support.design.widget.TextInputLayout>
-
-            <!--<EditText
-                android:id="@+id/gencode"
+            <ImageView
+                android:id="@+id/qr_code_image"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
-                android:inputType="number"
-                android:maxLines="1"
-                android:text="Unique Code:"/>-->
+                android:layout_margin="5dp"/>
+
+            <TextView
+                android:id="@+id/qr_code"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_margin="5dp"/>
 
             <Button
                 android:id="@+id/generate"
