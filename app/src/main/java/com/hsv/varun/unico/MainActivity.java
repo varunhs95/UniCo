@@ -1,5 +1,8 @@
 package com.hsv.varun.unico;
 
+import android.content.ClipData;
+import android.content.ClipboardManager;
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -18,6 +21,8 @@ import com.google.zxing.qrcode.encoder.QRCode;
 
 import java.util.Random;
 
+import static android.content.ClipDescription.MIMETYPE_TEXT_PLAIN;
+
 public class MainActivity extends AppCompatActivity {
     ImageView qr_code_image;
     TextView qr_code;
@@ -27,6 +32,8 @@ public class MainActivity extends AppCompatActivity {
     int min = 1000;
     int max = 9999;
     Random r = new Random();
+    TextView clipcontents;
+    String pasteData = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,7 +63,7 @@ public class MainActivity extends AppCompatActivity {
                                                 Bitmap b = null;
                                                 b = encodeAsBitmap(code);
                                                 qr_code_image.setImageBitmap(b);
-                                                qr_code.setText("Code:" + code + "");
+                                                qr_code.setText("Code: " + code + "");
                                             }catch (WriterException e){
                                                 e.printStackTrace();
                                             }
@@ -80,9 +87,18 @@ public class MainActivity extends AppCompatActivity {
         generate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                qr_code_image.setImageBitmap(null);
+                qr_code.setText("Generating Code... Please Wait");
+                activator.setChecked(false);
                 activator.setChecked(true);
             }
         });
+        //to get contents from clipboard
+        clipcontents = (TextView)findViewById(R.id.clipcontent_text);
+        ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+        ClipData.Item item = clipboard.getPrimaryClip().getItemAt(0);
+        pasteData = item.getText() + "";
+        clipcontents.setText(pasteData);
     }
 
     Bitmap encodeAsBitmap(String str) throws WriterException{
