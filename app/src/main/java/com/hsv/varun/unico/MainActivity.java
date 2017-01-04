@@ -3,6 +3,8 @@ package com.hsv.varun.unico;
 import android.graphics.Bitmap;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.Switch;
@@ -20,6 +22,7 @@ public class MainActivity extends AppCompatActivity {
     ImageView qr_code_image;
     TextView qr_code;
     Switch activator;
+    Button generate;
     String code = new String();
     int min = 1000;
     int max = 9999;
@@ -37,6 +40,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked){
+                    qr_code.setText("Generating Code... Please Wait..." + "");
                     Thread t = new Thread(new Runnable() {
                         @Override
                         public void run() {
@@ -44,7 +48,7 @@ public class MainActivity extends AppCompatActivity {
                             code = i1 + "";
                             try{
                                 synchronized (this){
-                                    wait(500);
+                                    wait(100);
                                     runOnUiThread(new Runnable() {
                                         @Override
                                         public void run() {
@@ -52,6 +56,7 @@ public class MainActivity extends AppCompatActivity {
                                                 Bitmap b = null;
                                                 b = encodeAsBitmap(code);
                                                 qr_code_image.setImageBitmap(b);
+                                                qr_code.setText("Code:" + code + "");
                                             }catch (WriterException e){
                                                 e.printStackTrace();
                                             }
@@ -65,6 +70,17 @@ public class MainActivity extends AppCompatActivity {
                     });
                     t.start();
                 }
+                else{
+                    qr_code_image.setImageBitmap(null);
+                    qr_code.setText("");
+                }
+            }
+        });
+        generate = (Button)findViewById(R.id.generate);
+        generate.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                activator.setChecked(true);
             }
         });
     }
@@ -72,14 +88,14 @@ public class MainActivity extends AppCompatActivity {
     Bitmap encodeAsBitmap(String str) throws WriterException{
         BitMatrix result;
         try{
-            result = new MultiFormatWriter().encode(str,BarcodeFormat.QR_CODE,100,100,null);
+            result = new MultiFormatWriter().encode(str,BarcodeFormat.QR_CODE,500,500,null);
         }catch (IllegalArgumentException e){
             return null;
         }
-        int[] pixels = new int[100*100];
-        for(int i = 0;i < 100;i++){
-            int offset = i*100;
-            for(int j = 0;j < 100; j++){
+        int[] pixels = new int[500*500];
+        for(int i = 0;i < 500;i++){
+            int offset = i*500;
+            for(int j = 0;j < 500; j++){
                 if(result.get(i,j)){
                     pixels[offset + j] = getResources().getColor(R.color.black);
                 }
@@ -88,8 +104,8 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         }
-        Bitmap b = Bitmap.createBitmap(100,100,Bitmap.Config.ARGB_8888);
-        b.setPixels(pixels,0,500,0,0,100,100);
+        Bitmap b = Bitmap.createBitmap(500,500,Bitmap.Config.ARGB_8888);
+        b.setPixels(pixels,0,500,0,0,500,500);
         return b;
     }
 }
