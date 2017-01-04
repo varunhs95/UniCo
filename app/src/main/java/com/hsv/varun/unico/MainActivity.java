@@ -20,7 +20,7 @@ public class MainActivity extends AppCompatActivity {
     ImageView qr_code_image;
     TextView qr_code;
     Switch activator;
-    String code;
+    String code = new String();
     int min = 1000;
     int max = 9999;
     Random r = new Random();
@@ -42,22 +42,28 @@ public class MainActivity extends AppCompatActivity {
                         public void run() {
                             int i1 = r.nextInt(max - min + 1) + min;
                             code = i1 + "";
-                            synchronized (this){
-                                runOnUiThread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        try{
-                                            Bitmap b = null;
-                                            b = encodeAsBitmap(code);
-                                            qr_code_image.setImageBitmap(b);
-                                        }catch (WriterException e){
-                                            e.printStackTrace();
+                            try{
+                                synchronized (this){
+                                    wait(500);
+                                    runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            try{
+                                                Bitmap b = null;
+                                                b = encodeAsBitmap(code);
+                                                qr_code_image.setImageBitmap(b);
+                                            }catch (WriterException e){
+                                                e.printStackTrace();
+                                            }
                                         }
-                                    }
-                                });
+                                    });
+                                }
+                            }catch (InterruptedException e){
+                                e.printStackTrace();
                             }
                         }
                     });
+                    t.start();
                 }
             }
         });
