@@ -3,36 +3,41 @@ package com.hsv.varun.unico;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.Switch;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.MultiFormatWriter;
 import com.google.zxing.WriterException;
 import com.google.zxing.common.BitMatrix;
-import com.google.zxing.qrcode.encoder.QRCode;
 
 import java.util.Random;
 
-import static android.content.ClipDescription.MIMETYPE_TEXT_PLAIN;
+import static com.hsv.varun.unico.MyService.code;
 
 public class MainActivity extends AppCompatActivity {
     ImageView qr_code_image;
-    TextView qr_code;
-    Switch activator;
-    Button generate;
-    String code = new String();
     int min = 1000;
     int max = 9999;
     Random r = new Random();
-    TextView clipcontents;
+    TextView qr_code;
+    Switch activator;
+    Button generate;
+    RelativeLayout act_main;
+    TextView clipContents;
     String pasteData = "";
 
     @Override
@@ -42,7 +47,15 @@ public class MainActivity extends AppCompatActivity {
         qr_code_image = (ImageView)findViewById(R.id.qr_code_image);
         qr_code = (TextView)findViewById(R.id.qr_code);
         activator = (Switch)findViewById(R.id.activator);
-        activator.setChecked(false);
+        act_main = (RelativeLayout)findViewById(R.id.activity_main);
+        int i1 = r.nextInt(max - min + 1) + min;
+        code = i1 + "";
+        if(MyService.isStarted==false)
+            activator.setChecked(false);
+        else {
+            make_qr();
+            activator.setChecked(true);
+        }
         activator.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -51,22 +64,22 @@ public class MainActivity extends AppCompatActivity {
                     Thread t = new Thread(new Runnable() {
                         @Override
                         public void run() {
-                            int i1 = r.nextInt(max - min + 1) + min;
-                            code = i1 + "";
                             try{
                                 synchronized (this){
                                     wait(100);
                                     runOnUiThread(new Runnable() {
                                         @Override
                                         public void run() {
-                                            try{
-                                                Bitmap b = null;
-                                                b = encodeAsBitmap(code);
-                                                qr_code_image.setImageBitmap(b);
-                                                qr_code.setText("Code: " + code + "");
-                                            }catch (WriterException e){
-                                                e.printStackTrace();
+                                            make_qr();
+                                            act_main.setBackgroundColor(0x9ccc65);
+                                            // paste it here
+                                            if(MyService.isStarted==false) {
+                                                start(activator);
+                                                clipContents = (TextView) findViewById(R.id.clipcontent_text);
+                                                clipContents.setText("---null---");
                                             }
+                                            else
+                                                activator.setChecked(true);  //Check if any problems are caused
                                         }
                                     });
                                 }
@@ -80,9 +93,22 @@ public class MainActivity extends AppCompatActivity {
                 else{
                     qr_code_image.setImageBitmap(null);
                     qr_code.setText("");
+                    // service stop
+                    clipContents = (TextView)findViewById(R.id.clipcontent_text);
+                    clipContents.setText("---null---");
+                    stop(activator);
+                    act_main.setBackgroundColor(0xffffff);
+
                 }
             }
         });
+
+
+
+
+
+
+
         generate = (Button)findViewById(R.id.generate);
         generate.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -94,12 +120,39 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         //to get contents from clipboard
-        clipcontents = (TextView)findViewById(R.id.clipcontent_text);
+        clipContents = (TextView)findViewById(R.id.clipcontent_text);
+        ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+        try {
+            ClipData.Item item = clipboard.getPrimaryClip().getItemAt(0);
+            pasteData = item.getText() + "";
+            clipContents.setText(pasteData);
+        }catch(Exception e){
+            Toast.makeText(this, "Empty ClipBoard", Toast.LENGTH_LONG).show();}
+
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        clipContents = (TextView)findViewById(R.id.clipcontent_text);
         ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
         ClipData.Item item = clipboard.getPrimaryClip().getItemAt(0);
         pasteData = item.getText() + "";
-        clipcontents.setText(pasteData);
+        clipContents.setText(pasteData);
     }
+
+    public void start(View view)
+    {
+
+        startService(new Intent(getBaseContext(), MyService.class));
+        //Toast.makeText(this, "Service Started", Toast.LENGTH_LONG).show();
+    }
+    public void stop(View view)
+    {
+        stopService(new Intent(getBaseContext(), MyService.class));
+    }
+
+
 
     Bitmap encodeAsBitmap(String str) throws WriterException{
         BitMatrix result;
@@ -123,6 +176,17 @@ public class MainActivity extends AppCompatActivity {
         Bitmap b = Bitmap.createBitmap(500,500,Bitmap.Config.ARGB_8888);
         b.setPixels(pixels,0,500,0,0,500,500);
         return b;
+    }
+
+    public void make_qr(){
+        Bitmap b = null;
+        try {
+            b = encodeAsBitmap(code);
+        } catch (WriterException e) {
+            e.printStackTrace();
+        }
+        qr_code_image.setImageBitmap(b);
+        qr_code.setText("Code: " + code + "");
     }
 }
 
